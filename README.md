@@ -19,7 +19,7 @@ The code encapsulation has been done in testbench.py. Run the code in each secti
 
 * **Yuxiao Huang** - *Initial work* - [Pillumina](https://github.com/Pillumina)
 
-## Referencese
+## References
 
 * Hat tip to anyone whose code was used
 * Inspiration
