@@ -6,14 +6,14 @@ Code base and the Testbench for getting results
 The code include each class component and the testbench for getting results.
 ### Prerequisites
 
-python3
-numpy
-matplotlib
+* python3
+* numpy
+* matplotlib
 
 
 ## Running the tests
 
-The code encapsulation has been done in testbench.py. Run the code in each section corresponding to problems those need some results. (e.g value and figure) 
+The code encapsulation has been done in testbench.py. Run the code in each section corresponding to problems those need some results. (e.g value and figures) 
 
 ## Authors
 
@@ -21,12 +21,8 @@ The code encapsulation has been done in testbench.py. Run the code in each secti
 
 ## References
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* Reinforcement Learning: An Introduction (Sutton & Barto)
+* https://github.com/dennybritz/reinforcement-learning.git 
 
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
