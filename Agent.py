@@ -38,14 +38,14 @@ class Agent:
         elif dir in self.down:
             nxt_x = cur_x
             nxt_y = cur_y - move
-        elif dir in self.left:
+        else:
             nxt_x = cur_x - move
             nxt_y = cur_y
 
         # check bound safety
-        if nxt_x < 0  or nxt_x > self.length:
+        if nxt_x < 0  or nxt_x >= self.width:
             nxt_x = cur_x
-        if nxt_y < 0 or nxt_y > self.width:
+        if nxt_y < 0 or nxt_y >= self.length:
             nxt_y = cur_y
 
         nxt_dir = (dir + rotate) % 12
@@ -206,7 +206,7 @@ class Agent:
 
     # problem 3(f) using one-step lookahead on value matrix to return the pi giving the optimal policy.
     def one_step_lookahead(self, V, pe=0):
-        new_policy = [[[None for y in range(self.length)] for x in range(self.width)] for h in range(self.num_dirs)]
+        new_policy_mat = [[[None for y in range(self.length)] for x in range(self.width)] for dir in range(self.num_dirs)]
         for state in self.env.states:
             adj_states = self.env.getAdjStates(state)
             max_action_value = float("-inf")
@@ -216,49 +216,51 @@ class Agent:
                 action = Action(move,rotate)
                 action_value = 0
                 for nxt_state in adj_states:
-                    x, y, dir = nxt_state.getState()
-                    action_value += self.get_trans_prob(pe, state, action, nxt_state) * V[dir][x][y]
+                    nxt_x, nxt_y, nxt_dir = nxt_state.getState()
+                    action_value += self.get_trans_prob(pe, state, action, nxt_state) * V[nxt_dir][nxt_x][nxt_y]
                 if action_value > max_action_value:
                     max_action_value = action_value
                     best_action = action
 
-            x, y, dir = state.getState()
-            new_policy[dir][x][y] = best_action
+            cur_x, cur_y, cur_dir = state.getState()
+            new_policy_mat[cur_dir][cur_x][cur_y] = best_action
 
-        new_policy = Policy(new_policy)
+        new_policy = Policy(new_policy_mat)
         return new_policy
 
     # problem 3(g) combine the functions above and do policy iteration, returning optimal policy with optimal value
     def policy_iter(self, init_policy, discount, pe=0):
 
-        last_value = self.policy_eval(init_policy, discount, pe)
-        last_policy = self.one_step_lookahead(last_value, pe)
+        prev_value = self.policy_eval(init_policy, discount, pe)
+        prev_policy = self.one_step_lookahead(prev_value, pe)
         converge = False
 
         while not converge:
             print ('policy iteration')
-            new_value = self.policy_eval(last_policy, discount, pe)
+            new_value = self.policy_eval(prev_policy, discount, pe)
             new_policy = self.one_step_lookahead(new_value, pe)
 
-            print (np.sum(np.abs(new_value - last_value)))
+            print (np.sum(np.abs(new_value - prev_value)))
 
-            if np.array_equal(new_value, last_value): # if new_value = last_value, then new_policy = last_policy
+            # converge if new_value = last_value, then we get the optimal policy.
+            if np.array_equal(new_value, prev_value):
                 converge = True
 
-            last_value = new_value
-            last_policy = new_policy
+            prev_value = new_value
+            prev_policy = new_policy
 
         return new_policy, new_value
 
     # problem 4(a), Value Iteration.
     def value_iter(self, discount, pe=0):
-        last_value = np.zeros((self.num_dirs, self.width, self.length))
+        prev_value = np.zeros((self.num_dirs, self.width, self.length))
         new_policy_matrix = [[[None for y in range(self.length)] for x in range(self.width)] for dir in
                              range(self.num_dirs)]
 
-        diff = -1
+        converge = False
 
-        while diff != 0:
+        while not converge:
+            print("\nValue Iteration ")
             new_value = np.zeros((self.num_dirs, self.width, self.length))
             for cur_state in self.env.states:
                 cur_x, cur_y, cur_dir = cur_state.getState()
@@ -272,7 +274,7 @@ class Agent:
                     for nxt_state in adj_states:
                         x, y, dir = nxt_state.getState()
                         action_value += self.get_trans_prob(pe, cur_state, action, nxt_state) * (
-                                    self.get_reward(cur_state) + discount * last_value[dir][x][y])
+                                    self.get_reward(cur_state) + discount * prev_value[dir][x][y])
                     if action_value > max_action_value:
                         best_action = action
                         max_action_value = action_value
@@ -280,10 +282,11 @@ class Agent:
                 new_policy_matrix[cur_dir][cur_x][cur_y] = best_action
                 new_value[cur_dir][cur_x][cur_y] = max_action_value
 
-            print(np.sum(np.abs(new_value - last_value)))
-            if np.array_equal(new_value, last_value):
-                break
-            last_value = new_value
+            diff = np.sum(np.abs(new_value - prev_value))
+            print("Value diff: ", diff)
+            if np.array_equal(new_value, prev_value):
+                converge = True
+            prev_value = new_value
         new_policy = Policy(new_policy_matrix)
         return new_policy, new_value
 

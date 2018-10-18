@@ -25,16 +25,16 @@ discount = 0.9
 
 ###########################################################
 ## 3(g), 3(h), 3(i)  Policy Iteration
-# start_time = time.time()
-#
-# opt_policy, opt_value = agent.policy_iter(init_policy, discount)
-#
-# end_time = time.time()
-# diff_time = end_time - start_time
-#
-# print("3(i) running time: ", diff_time, "s")
+start_time = time.time()
 
-# agent.plot_trajectory(opt_policy, init_state, 0)
+opt_policy, opt_value = agent.policy_iter(policy, discount)
+
+end_time = time.time()
+diff_time = end_time - start_time
+
+print("3(i) running time: ", diff_time, "s")
+
+agent.plot_trajectory(opt_policy, init_state, 0)
 ###########################################################
 
 ###########################################################
@@ -58,7 +58,7 @@ discount = 0.9
 
 ###########################################################
 ## 5(b) Modified reward function
-agent.plot_trajectory(policy, init_state, 0.25)
-value = agent.policy_eval(policy, True, 0.9)
-print("The value of trajectory in 5(a) is, ", value[6][1][4])
+# agent.plot_trajectory(policy, init_state, 0.25)
+# value = agent.policy_eval(policy, True, 0.9)
+# print("The value of trajectory in 5(a) is, ", value[6][1][4])
 ###########################################################
