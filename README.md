@@ -1,4 +1,4 @@
-# Soltions to ECE209AS Robotics Pset2
+# Solutions to ECE209AS Robotics Pset2
 
 Code base and the Testbench for getting results
 
@@ -17,7 +17,7 @@ The code encapsulation has been done in testbench.py. Run the code in each secti
 
 ## Authors
 
-* **Yuxiao Huang** - *Initial work* - [Pillumina](https://github.com/Pillumina)
+* **Yuxiao Huang** - [Pillumina](https://github.com/Pillumina)
 
 ## References
 
