@@ -130,13 +130,13 @@ class Agent:
         traj = []
 
         cur_state = init_state
-        cur_x, cur_y, _ = cur_state.getState()
+        cur_x, cur_y, _= cur_state.getState()
         traj.append((cur_x, cur_y))
 
         while cur_x != 3 or cur_y !=4 :  # if the current state does not reach the goal position, then calculate the next state and update
             policy_action = policy.getPolicyAction(cur_state)
             nxt_state = self.calc_nxt_state(pe, cur_state, policy_action)
-            cur_x, cur_y, _ = nxt_state.getState()
+            cur_x, cur_y, dir = nxt_state.getState()
             traj.append((cur_x, cur_y))
             cur_state = nxt_state
 
@@ -161,17 +161,83 @@ class Agent:
         plt.ylabel('y')
         plt.title('Trajectory of the given policy')
         plt.show()
+        return traj
+
+
+
+    def plot_trajectory_mod(self, policy, init_state, pe):
+        traj = []
+
+        cur_state = init_state
+        cur_x, cur_y, cur_dir= cur_state.getState()
+        traj.append((cur_x, cur_y, cur_dir))
+
+        while cur_x != 3 or cur_y !=4 or cur_dir >7 or cur_dir < 5:  # if the current state does not reach the goal position, then calculate the next state and update
+            policy_action = policy.getPolicyAction(cur_state)
+            nxt_state = self.calc_nxt_state(pe, cur_state, policy_action)
+            cur_x, cur_y, cur_dir = nxt_state.getState()
+
+            print(cur_x, cur_y, cur_dir)
+            traj.append((cur_x, cur_y, cur_dir))
+            cur_state = nxt_state
+
+
+        print(traj)
+
+        fig, ax = plt.subplots()
+        ax.set_yticks([0.5, 1.5, 2.5, 3.5, 4.5, 5.5], minor=False)
+        ax.set_xticks([0.5, 1.5, 2.5, 3.5, 4.5, 5.5], minor=False)
+        ax.yaxis.grid(True, which='major')
+        ax.xaxis.grid(True, which='major')
+        plt.axis([-0.5, 5.5, -0.5, 5.5])
+
+        for i in range(len(traj) - 1):
+            cur_x, cur_y = traj[i][0], traj[i][1]
+            nxt_x, nxt_y = traj[i+1][0], traj[i+1][1]
+            dx = nxt_x - cur_x
+            dy = nxt_y - cur_y
+            plt.arrow(cur_x, cur_y, dx, dy, head_width=0.05, head_length=0.1, length_includes_head=True)
+
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('Trajectory of the given policy')
+        plt.show()
+        return traj
+
+    def traj_value(self, traj):
+        value = 0
+
+        for tuple in traj:
+            x, y = tuple
+            cur_state = State(x, y, dir=0)
+            value += self.get_reward(cur_state)
+
+        return value
+
+
+    def traj_value_mod(self, traj):
+        value = 0
+
+        for tuple in traj:
+            x, y, cur_dir = tuple
+            cur_state = State(x, y, cur_dir)
+            value += self.get_reward_modified(cur_state)
+
+        return value
+
+
+
 
     # problem 3(d) & 5(b) Policy evaluation, return a matrix of values indexed by state.
     # if the mod argument is True, the get reward function would be modified w.r.t 5(b). Otherwise.
     def policy_eval(self, policy, discount, mod=False, pe=0):
 
         # confidence = 0.01
-        diff = -1
-        # converge = False
+
+        converge = False
         prev_value = np.zeros((self.num_dirs, self.width, self.length))
 
-        while diff !=0:
+        while not converge:
             new_value = np.zeros((self.num_dirs, self.width, self.length))
 
             state_space = self.env.states
@@ -199,8 +265,8 @@ class Agent:
             diff = np.sum(np.abs(new_value - prev_value))
             prev_value = new_value            # print(diff)
 
-            # if diff < confidence:
-            #     converge = True
+            if diff == 0:
+                converge = True
 
         return new_value
 
@@ -236,11 +302,12 @@ class Agent:
         converge = False
 
         while not converge:
-            print ('policy iteration')
+            print ('\nPolicy iteration')
             new_value = self.policy_eval(prev_policy, discount, pe)
             new_policy = self.one_step_lookahead(new_value, pe)
 
-            print (np.sum(np.abs(new_value - prev_value)))
+            diff = np.sum(np.abs(new_value - prev_value))
+            print ("Value difference is : ", diff)
 
             # converge if new_value = last_value, then we get the optimal policy.
             if np.array_equal(new_value, prev_value):
@@ -260,7 +327,7 @@ class Agent:
         converge = False
 
         while not converge:
-            print("\nValue Iteration ")
+            # print("\nValue Iteration ")
             new_value = np.zeros((self.num_dirs, self.width, self.length))
             for cur_state in self.env.states:
                 cur_x, cur_y, cur_dir = cur_state.getState()
@@ -283,7 +350,7 @@ class Agent:
                 new_value[cur_dir][cur_x][cur_y] = max_action_value
 
             diff = np.sum(np.abs(new_value - prev_value))
-            print("Value diff: ", diff)
+            # print("Value diff: ", diff)
             if np.array_equal(new_value, prev_value):
                 converge = True
             prev_value = new_value
