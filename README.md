@@ -9,7 +9,17 @@ The code include each class component and the testbench for getting results.
 * python3
 * numpy
 * matplotlib
-
+## Descriptions
+### Basic Components
+* Action.py: Class for action component
+* State.py: Class for state component
+* Env.py: Class for creating the state space (the environment) and calculating the adjacent possible states given current state.
+* Policy.py: Class for policy component. Initialize policy matrix given rules of project.
+### Main
+* Agent.py: Class for agent (robot). Essential functions for creating trajetcory, policy iteration and value iteration etc.
+### Test
+* testbench.py: Code sections for each problem.
+* Solution2Pset.ipynb: Jupyer notbook for running code.
 
 ## Running the tests
 
